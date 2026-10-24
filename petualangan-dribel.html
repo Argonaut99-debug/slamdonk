@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Petualangan Si Dribel - Bola Basket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;background:#0b0b1e;overflow:hidden;font-family:'Press Start 2P','Courier New',monospace;color:#fff}
+#stage{position:absolute;left:50%;top:50%;width:800px;height:448px;transform-origin:center center;overflow:hidden;background:#000}
+#cv{position:absolute;left:0;top:0;width:800px;height:448px;image-rendering:pixelated;image-rendering:crisp-edges}
+#ui{position:absolute;left:0;top:0;right:0;bottom:0;display:none;z-index:5}
+.scr{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(8,8,32,.84);padding:10px}
+.scr.bot{align-items:flex-end;background:none;padding:6px}
+.box{background:#1a1a3e;border:4px solid #fff;outline:4px solid #000;padding:12px 14px;max-width:770px;width:100%;max-height:432px;overflow:auto;font-size:10px;line-height:1.7;text-align:left}
+.box.c{text-align:center}
+.box.compact{max-height:236px;padding:8px 12px;line-height:1.5}
+.hd{color:#ffd23f;font-size:12px;margin-bottom:8px;line-height:1.5}
+.title{font-size:26px;line-height:1.35;color:#ffd23f;text-shadow:3px 3px 0 #e63946,6px 6px 0 #000;margin:4px 0 10px}
+.sub{font-size:9px;color:#9be7ff;margin-bottom:14px}
+.row{margin:8px 0;display:flex;align-items:center;justify-content:center;gap:10px;font-size:10px}
+input,select{font:inherit;font-size:11px;padding:8px;background:#fff;color:#222;border:3px solid #000;width:250px}
+select{width:110px}
+.help{font-size:8px;line-height:1.9;color:#bbb;margin-top:12px}
+.btn{font:inherit;font-size:11px;background:#ffd23f;color:#222;border:0;padding:10px 14px;margin:6px 4px 0;cursor:pointer;box-shadow:inset -4px -4px 0 #c99a00,inset 4px 4px 0 #fff3a8,0 0 0 3px #000}
+.btn:active{transform:translateY(2px)}
+.btn.green{background:#5bd45b;box-shadow:inset -4px -4px 0 #2e9a2e,inset 4px 4px 0 #b6f5b6,0 0 0 3px #000}
+.btn.red{background:#ff6b6b;box-shadow:inset -4px -4px 0 #b53a3a,inset 4px 4px 0 #ffc2c2,0 0 0 3px #000}
+.btn.big{font-size:14px;padding:14px 20px}
+.r{text-align:right}.r2{display:flex;gap:10px;justify-content:center;margin-top:10px}
+.r2 .btn{flex:1;font-size:13px;padding:14px}
+.blink{animation:bl 1s steps(2) infinite}@keyframes bl{50%{opacity:.15}}
+.qq{font-size:11px;line-height:1.6;margin:6px 0 8px}
+.compact .qq{font-size:10px;margin:2px 0 6px}
+.opt{display:block;width:100%;text-align:left;font:inherit;font-size:10px;line-height:1.5;background:#2d2d63;color:#fff;border:3px solid #6f6fd6;padding:8px 10px;margin:5px 0;cursor:pointer}
+.opt:active{background:#44449a}
+.opt.ok{background:#1f8a3b;border-color:#8dfc9c}.opt.no{background:#a12b3a;border-color:#ff9aa6}.opt.dim{opacity:.5}
+.compact #opts{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.compact .opt{margin:0;padding:6px 8px;font-size:9px}
+.fb{padding:8px 10px;margin-top:8px;border-left:6px solid;font-size:10px;line-height:1.6}
+.fb.g{background:#14502a;border-color:#5bd45b}.fb.r{background:#5a1a24;border-color:#ff6b6b}
+.compact .fb{margin-top:4px;padding:5px 8px;font-size:9px}
+.bar{height:12px;background:#333;border:2px solid #fff;margin:6px 0}.bar i{display:block;height:100%;background:#5bd45b;width:100%}
+.two{display:flex;gap:10px}.col{flex:1;min-width:0}
+.hint{font-size:8px;color:#9be7ff;margin-bottom:6px}
+.card{background:#2d2d63;border:3px solid #8f8fff;padding:6px 8px;margin:4px 0;font-size:9px;line-height:1.5;touch-action:none;cursor:grab;position:relative}
+.card.drag{z-index:99;opacity:.92;border-color:#ffd23f;box-shadow:0 0 0 3px #000}
+.slot{border:3px dashed #6f6fd6;min-height:52px;margin:4px 0;padding:2px 2px 2px 26px;position:relative}
+.slot .num{position:absolute;left:5px;top:7px;color:#ffd23f;font-size:11px}
+.slot.bad{border-color:#ff6b6b;background:rgba(255,60,60,.22)}
+.empty{font-size:9px;color:#888;padding:8px}
+.mt{display:block;width:100%;font:inherit;font-size:9px;line-height:1.5;text-align:left;background:#2d2d63;color:#fff;border:3px solid #6f6fd6;padding:7px;margin:5px 0;cursor:pointer}
+.mt.sel{border-color:#ffd23f;background:#4b4b00}.mt.ok{background:#1f8a3b;border-color:#8dfc9c;opacity:.85}
+#msg{font-size:9px;margin-top:6px;min-height:14px;line-height:1.5}#msg.g{color:#8dfc9c}#msg.r{color:#ff9aa6}#msg.warn{color:#ffd23f}
+ul.lst{margin:6px 0;padding-left:18px}ul.lst li{margin:7px 0}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:9px;line-height:1.7}
+.mini{font-size:8px;line-height:1.8;color:#cfe}
+#touch{position:absolute;left:0;right:0;bottom:0;height:120px;z-index:3;pointer-events:none;display:none}
+.tb{position:absolute;bottom:12px;width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.22);border:3px solid rgba(255,255,255,.7);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;pointer-events:auto;touch-action:none}
+.tb.on{background:rgba(255,210,63,.55)}
+#bl{left:12px}#br{left:88px}#bj{right:12px}#ba{right:88px}
+.tp{position:absolute;top:5px;height:20px;z-index:8;background:rgba(0,0,0,.6);border:2px solid #fff;font-size:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0 6px}
+#pz{right:6px;width:30px}#mt{right:42px;width:74px}
+#rot{display:none;position:fixed;left:0;right:0;top:0;z-index:50;background:#e63946;color:#fff;font-size:9px;text-align:center;padding:8px;pointer-events:none}
+@media (orientation:portrait){#rot{display:block}}
+</style>
+</head>
+<body>
+<div id="rot">Putar HP ke mode LANDSCAPE (mendatar) agar lebih nyaman</div>
+<div id="stage">
+  <canvas id="cv" width="800" height="448"></canvas>
+  <div id="touch">
+    <div class="tb" id="bl">◀</div><div class="tb" id="br">▶</div>
+    <div class="tb" id="ba">B</div><div class="tb" id="bj">▲</div>
+  </div>
+  <div class="tp" id="mt">SUARA:ON</div><div class="tp" id="pz">II</div>
+  <div id="ui"></div>
+</div>
+<script>
+(()=>{
+'use strict';
+/* =====================================================================
+   PETUALANGAN SI DRIBEL - Game edukasi Bola Basket (PJOK SMP)
+   =====================================================================
+   PETUNJUK UNTUK GURU - CARA MENGGANTI / MENAMBAH SOAL:
+   Semua soal ada di bagian "DAFTAR SOAL" di bawah ini.
+   - MCQ[n]   : soal pilihan ganda dunia ke-n (dipakai gerbang soal & boss).
+                Format: {q:'pertanyaan', o:['A','B','C','D'], a:indeksJawabanBenar, e:'penjelasan'}
+                a = 0 untuk pilihan pertama, 1 untuk kedua, dst.
+                Tambahkan baris baru di dalam kurung siku [ ] dunia yang diinginkan.
+   - TF[n]    : soal Benar/Salah Kilat. Format: {s:'pernyataan', v:true/false, e:'penjelasan'}
+   - ORDER    : soal urutkan langkah gerakan (tulis langkah dalam urutan BENAR).
+   - MATCH[n] : pasangan cocokkan [nama, deskripsi].
+   - GUESS[n] : soal tebak nama teknik (format sama seperti MCQ).
+   ===================================================================== */
+
+const W=800,H=448,T=32,ROWS=14;
+
+/* ============================ DAFTAR SOAL ============================ */
+// ----- RANGKUMAN & INFO DUNIA -----
+const WORLDS=[
+ {n:'Lapangan Latihan',topik:'Lapangan dan peralatan basket',theme:'court',boss:'Kerucut Raksasa',bc:{h:'#7a2e00',m:'#ff7b00'},
+  sum:['Lapangan basket berbentuk persegi panjang berukuran 28 m x 15 m.','Ring dipasang setinggi 3,05 m, di belakangnya ada papan pantul.','Bagian penting: garis batas, lingkaran tengah, garis lemparan bebas, garis 3 poin.','Peralatan: bola, ring dan jaring, papan pantul, peluit wasit, papan skor.']},
+ {n:'Hutan Dribel',topik:'Teknik dribbling',theme:'forest',boss:'Pohon Pemantul',bc:{h:'#14502a',m:'#3fb950'},
+  sum:['Dribbling = memantulkan bola ke lantai dengan satu tangan secara berulang.','Dribble rendah (setinggi lutut): saat dijaga lawan atau melindungi bola.','Dribble tinggi (setinggi pinggang): saat berlari cepat tanpa penjagaan.','Ganti tangan: mengubah arah. Pandangan ke depan, bola didorong ruas jari!']},
+ {n:'Gunung Passing',topik:'Teknik mengoper (passing)',theme:'mountain',boss:'Elang Pengoper',bc:{h:'#2b3a67',m:'#6c8cff'},
+  sum:['Chest pass: bola di depan dada, didorong lurus ke dada rekan.','Bounce pass: bola dipantulkan ke lantai sekitar 2/3 jarak menuju rekan.','Overhead pass: bola dari atas kepala, cocok untuk jarak jauh.','Urutan: sikap siap, pegang bola, dorong sambil melangkah, gerak lanjut.']},
+ {n:'Pantai Shooting',topik:'Teknik menembak (set shot dan lay-up)',theme:'beach',boss:'Kepiting Penembak',bc:{h:'#7a1f1f',m:'#ff5a4d'},
+  sum:['Set shot: kaki selebar bahu, bola di depan dada/dahi, dorong ke atas, jentikkan pergelangan.','Lay-up: dribble mendekati ring, dua langkah, lompat dengan kaki tumpuan.','Tiga fase menembak: persiapan, pelaksanaan, gerak lanjut.','Mata selalu melihat ring. Setelah bola lepas, lengan tetap lurus ke ring.']},
+ {n:'Istana Raja Turnover',topik:'Peraturan dasar dan sikap sportif',theme:'castle',boss:'Raja Turnover',bc:{h:'#3a0a5a',m:'#9d4edd'},
+  sum:['Traveling: melangkah lebih dari 2 langkah tanpa mendribel. Double dribble: dribble 2 tangan atau mendribel lagi setelah berhenti.','Charging: penyerang menabrak lawan yang diam. Pelanggaran 3 detik: terlalu lama di area bawah ring.','Satu regu 5 pemain. Skor: lemparan bebas 1, tembakan biasa 2, dari luar garis 3 poin = 3.','Sikap sportif: jujur, hormati wasit dan lawan, terima hasil dengan lapang dada.']}
+];
+
+// ----- PILIHAN GANDA (gerbang soal & boss quiz) -----
+// Format: {q:'pertanyaan', o:['pilihan A','B','C','D'], a:indeksJawabanBenar, e:'penjelasan'}
+const MCQ={
+ 1:[ // DUNIA 1: Lapangan & peralatan
+  {q:'Berapa tinggi ring basket dari lantai?',o:['2,05 meter','3,05 meter','3,50 meter','2,50 meter'],a:1,e:'Ring basket dipasang setinggi 3,05 meter dari lantai.'},
+  {q:'Berapa ukuran lapangan basket standar (panjang x lebar)?',o:['20 m x 10 m','25 m x 12 m','28 m x 15 m','30 m x 20 m'],a:2,e:'Lapangan basket standar berukuran 28 meter x 15 meter.'},
+  {q:'Berapa jumlah pemain satu regu yang bermain di lapangan?',o:['3 pemain','5 pemain','7 pemain','11 pemain'],a:1,e:'Setiap regu bermain dengan 5 pemain di lapangan, sisanya cadangan.'},
+  {q:'Bagian di belakang ring untuk memantulkan bola disebut ...',o:['Papan skor','Tiang gawang','Papan pantul','Jaring'],a:2,e:'Papan pantul membantu memantulkan bola menuju ring.'},
+  {q:'Lingkaran di tengah lapangan dipakai untuk ...',o:['Lemparan bebas','Lompat bola awal','Menaruh bola cadangan','Pemanasan wasit'],a:1,e:'Lompat bola (jump ball) di awal pertandingan dilakukan di lingkaran tengah.'},
+  {q:'Alat yang dibunyikan wasit untuk menghentikan permainan adalah ...',o:['Lonceng','Peluit','Terompet','Genderang'],a:1,e:'Wasit memakai peluit untuk menghentikan dan memulai permainan.'},
+  {q:'Bola yang keluar melewati garis batas lapangan dinyatakan ...',o:['Tetap hidup','Out (mati)','Menambah poin','Lompat bola'],a:1,e:'Bola yang keluar garis batas dinyatakan out dan permainan berhenti.'},
+  {q:'Jaring yang tergantung di bawah ring berfungsi ...',o:['Menghalangi bola masuk','Membuat bola turun perlahan sehingga jelas masuk','Menghitung waktu','Hiasan saja'],a:1,e:'Jaring membuat bola turun perlahan sehingga terlihat jelas bola masuk ring.'}
+ ],
+ 2:[ // DUNIA 2: Dribbling
+  {q:'Dribble rendah dipakai ketika ...',o:['Berlari cepat tanpa lawan','Dijaga ketat lawan dan melindungi bola','Mengoper ke teman','Menembak ke ring'],a:1,e:'Dribble rendah (setinggi lutut) menjaga bola dekat tubuh sehingga sulit direbut lawan.'},
+  {q:'Dribble tinggi biasanya setinggi ...',o:['Mata kaki','Lutut','Pinggang','Kepala'],a:2,e:'Dribble tinggi memantul sekitar pinggang, cocok untuk berlari cepat saat tidak dijaga.'},
+  {q:'Bagian tangan yang mendorong bola saat dribbling adalah ...',o:['Telapak tangan penuh','Ruas dan ujung jari','Punggung tangan','Siku'],a:1,e:'Bola didorong dengan ruas/ujung jari terbuka dibantu pergelangan, bukan ditampar telapak tangan.'},
+  {q:'Ke mana pandangan mata sebaiknya saat dribbling?',o:['Ke bola terus','Ke lantai','Ke depan melihat lapangan','Ke atas'],a:2,e:'Pandangan ke depan agar bisa melihat teman dan lawan.'},
+  {q:'Ganti tangan (change of hand) dilakukan untuk ...',o:['Beristirahat','Mengubah arah dan menghindari lawan','Menembak','Menangkap bola'],a:1,e:'Ganti tangan membantu mengubah arah dan menghindari penjagaan lawan.'},
+  {q:'Sikap tubuh yang benar saat dribble rendah adalah ...',o:['Badan tegak, lutut lurus','Lutut ditekuk, badan sedikit condong ke depan','Berbaring','Melompat terus'],a:1,e:'Lutut ditekuk dan badan condong membuat gerakan stabil dan bola terlindungi.'},
+  {q:'Tangan yang tidak memantulkan bola berguna untuk ...',o:['Memegang celana','Melindungi bola dari lawan','Menunjuk wasit','Tidak dipakai'],a:1,e:'Tangan bebas dipakai melindungi bola dari jangkauan lawan.'},
+  {q:'Dribbling adalah ...',o:['Melempar bola ke ring','Memantul-mantulkan bola ke lantai sambil bergerak','Mengoper dengan dua tangan','Menangkap bola pantulan'],a:1,e:'Dribbling = memantulkan bola ke lantai berulang kali dengan satu tangan.'},
+  {q:'Agar dribble terkontrol, bola dipantulkan di ...',o:['Jauh di depan tubuh','Dekat tubuh, di samping atau depan badan','Di belakang punggung terus','Di atas kepala'],a:1,e:'Bola dekat tubuh lebih mudah dikontrol dan dilindungi.'},
+  {q:'Saat berlari cepat membawa bola tanpa penjagaan, dribble yang tepat adalah ...',o:['Dribble rendah','Dribble tinggi','Tidak mendribel','Duduk dulu'],a:1,e:'Dribble tinggi memberi ruang bola untuk mengikuti lari cepat.'}
+ ],
+ 3:[ // DUNIA 3: Passing
+  {q:'Pada chest pass, bola dipegang di dekat ...',o:['Dada','Lutut','Atas kepala','Pinggul'],a:0,e:'Chest pass dimulai dengan bola di depan dada.'},
+  {q:'Pada bounce pass, bola dipantulkan ke lantai pada ...',o:['Dekat kaki pengoper','Sekitar dua pertiga jarak dari pengoper ke penerima','Tepat di kaki lawan','Di atas kepala penerima'],a:1,e:'Pantulan sekitar dua pertiga jarak, lebih dekat ke penerima, membuat bola naik pas ke pinggang/dada rekan.'},
+  {q:'Umpan untuk jarak jauh atau melewati lawan yang lebih pendek adalah ...',o:['Bounce pass','Chest pass','Overhead pass','Dribble rendah'],a:2,e:'Overhead pass dilempar dari atas kepala sehingga melewati lawan dan menjangkau jauh.'},
+  {q:'Gerak lanjut chest pass yang benar adalah ...',o:['Lengan lurus ke depan, ibu jari ke bawah','Lengan jatuh ke samping','Tangan menutup muka','Berbalik badan'],a:0,e:'Setelah bola lepas, lengan lurus ke depan dan pergelangan diputar hingga ibu jari mengarah ke bawah.'},
+  {q:'Passing yang baik diarahkan ke ...',o:['Kaki lawan','Bagian yang mudah ditangkap rekan (setinggi dada)','Atas tiang ring','Penonton'],a:1,e:'Umpan harus mudah ditangkap rekan, biasanya setinggi dada.'},
+  {q:'Bounce pass cocok dipakai ketika ...',o:['Tidak ada lawan sama sekali','Lawan menjaga tinggi di antara pengoper dan penerima','Menembak ke ring','Menjaga garis'],a:1,e:'Bola dipantulkan melewati bagian bawah tangan lawan yang menjaga tinggi.'},
+  {q:'Sebelum mengoper, pemain harus ...',o:['Memejamkan mata','Melihat rekan yang dituju','Menutup tangan','Membelakangi rekan'],a:1,e:'Melihat rekan membantu mengarahkan umpan dengan tepat.'},
+  {q:'Pada overhead pass, bola dipegang ...',o:['Di bawah lutut','Di atas kepala dengan dua tangan','Di samping pinggul satu tangan','Di belakang punggung'],a:1,e:'Overhead pass dimulai dengan bola di atas kepala dipegang dua tangan.'}
+ ],
+ 4:[ // DUNIA 4: Shooting
+  {q:'Tiga fase dalam menembak (shooting) adalah ...',o:['Persiapan, pelaksanaan, gerak lanjut','Lari, lompat, mendarat','Dribble, oper, tembak','Awal, tengah, akhir pertandingan'],a:0,e:'Fase tembakan: persiapan, pelaksanaan, dan gerak lanjut.'},
+  {q:'Pada set shot, posisi kaki yang benar adalah ...',o:['Rapat dan lutut lurus','Selebar bahu dan lutut sedikit ditekuk','Satu kaki terangkat tinggi','Menyilang'],a:1,e:'Kaki selebar bahu dengan lutut ditekuk memberi keseimbangan dan tenaga.'},
+  {q:'Saat melepas bola pada set shot, pergelangan tangan ...',o:['Kaku','Dijentikkan ke depan-bawah','Diputar ke samping','Ditarik ke belakang'],a:1,e:'Jentikan pergelangan memberi putaran dan arah bola yang halus.'},
+  {q:'Gerak lanjut set shot yang benar adalah ...',o:['Tangan segera diturunkan','Lengan tetap lurus ke arah ring, mata melihat ring','Berbalik badan','Memejamkan mata'],a:1,e:'Lengan tetap terangkat lurus ke ring membantu arah dan kebiasaan menembak yang baik.'},
+  {q:'Lay-up biasanya dilakukan setelah ...',o:['Berdiri diam di garis 3 poin','Dribble mendekati ring lalu dua langkah','Duduk','Mengoper bola'],a:1,e:'Lay-up dimulai dari dribble mendekati ring, lalu dua langkah dan melompat.'},
+  {q:'Pada lay-up tangan kanan, kaki tumpuan untuk melompat adalah ...',o:['Kaki kanan','Kaki kiri','Dua kaki bersamaan','Tidak perlu tumpuan'],a:1,e:'Menembak dengan tangan kanan: lutut kanan diangkat, bertumpu pada kaki kiri.'},
+  {q:'Pada lay-up, bola dilepas dengan lembut ke arah ...',o:['Papan pantul','Lantai','Tiang','Penonton'],a:0,e:'Bola dilepas lembut, sering dipantulkan ke papan pantul menuju ring.'},
+  {q:'Setelah lay-up, pemain mendarat dengan ...',o:['Satu kaki sambil jatuh','Dua kaki dalam keadaan seimbang','Tengkurap','Berputar tiga kali'],a:1,e:'Mendarat dengan dua kaki seimbang agar aman dan siap bertahan.'}
+ ],
+ 5:[ // DUNIA 5: Peraturan & sikap sportif
+  {q:'Melangkah lebih dari dua langkah sambil memegang bola tanpa mendribel disebut ...',o:['Charging','Traveling','Double dribble','Out'],a:1,e:'Itu pelanggaran traveling (berjalan dengan bola).'},
+  {q:'Mendribel dengan dua tangan bersamaan, atau mendribel lagi setelah berhenti, disebut ...',o:['Traveling','Double dribble','Pelanggaran 3 detik','Lemparan bebas'],a:1,e:'Itu double dribble (dribble ganda).'},
+  {q:'Pemain penyerang menabrak lawan yang sudah berdiri diam disebut ...',o:['Charging','Traveling','Rebound','Lompat bola'],a:0,e:'Charging adalah pelanggaran penyerang yang menabrak pemain bertahan yang sudah diam di posisinya.'},
+  {q:'Pelanggaran 3 detik terjadi jika pemain penyerang ...',o:['Memegang bola lebih dari 3 detik','Berada di area bawah ring (area kunci) lebih dari 3 detik','Minum lebih dari 3 detik','Menembak 3 kali'],a:1,e:'Penyerang tidak boleh terlalu lama (lebih dari 3 detik) di area bawah ring.'},
+  {q:'Tembakan dari dalam garis 3 poin bernilai ...',o:['1 poin','2 poin','3 poin','4 poin'],a:1,e:'Tembakan biasa dari dalam garis 3 poin bernilai 2 poin.'},
+  {q:'Tembakan dari luar garis 3 poin yang masuk bernilai ...',o:['1 poin','2 poin','3 poin','5 poin'],a:2,e:'Tembakan dari luar garis 3 poin bernilai 3 poin.'},
+  {q:'Lemparan bebas yang masuk bernilai ...',o:['1 poin','2 poin','3 poin','0 poin'],a:0,e:'Lemparan bebas bernilai 1 poin.'},
+  {q:'Jumlah pemain satu regu yang berada di lapangan adalah ...',o:['3','4','5','7'],a:2,e:'Satu regu bermain dengan 5 pemain di lapangan.'},
+  {q:'Sikap sportif ketika regu kita kalah adalah ...',o:['Marah pada wasit','Menerima hasil dan memberi selamat pada lawan','Menyalahkan teman','Pulang tanpa bersalaman'],a:1,e:'Pemain sportif menerima hasil dan menghormati lawan.'},
+  {q:'Siapa yang memutuskan terjadinya pelanggaran dalam pertandingan?',o:['Penonton','Pelatih lawan','Wasit','Pemain cadangan'],a:2,e:'Keputusan pelanggaran ada pada wasit, dan keputusannya harus dihormati.'}
+ ]
+};
+
+// ----- BENAR/SALAH KILAT -----
+const TF={
+ 1:[{s:'Ring basket dipasang setinggi 3,05 meter.',v:true,e:'Betul, tinggi ring 3,05 meter.'},
+    {s:'Satu regu bermain dengan 7 pemain di lapangan.',v:false,e:'Salah. Yang bermain di lapangan 5 pemain per regu.'},
+    {s:'Lapangan basket berbentuk persegi panjang.',v:true,e:'Betul, ukurannya 28 m x 15 m.'},
+    {s:'Papan pantul dipasang di belakang ring.',v:true,e:'Betul, papan pantul ada di belakang ring.'},
+    {s:'Lompat bola awal dilakukan di lingkaran tengah.',v:true,e:'Betul, jump ball dilakukan di lingkaran tengah.'},
+    {s:'Pemain yang meniup peluit untuk menghentikan pertandingan.',v:false,e:'Salah. Yang meniup peluit adalah wasit.'}],
+ 5:[{s:'Mendribel dengan dua tangan bersamaan disebut double dribble.',v:true,e:'Betul, itu double dribble.'},
+    {s:'Tembakan dari luar garis 3 poin bernilai 2 poin.',v:false,e:'Salah. Dari luar garis 3 poin nilainya 3 poin.'},
+    {s:'Lemparan bebas bernilai 1 poin.',v:true,e:'Betul, lemparan bebas = 1 poin.'},
+    {s:'Pemain boleh melangkah tiga kali tanpa mendribel.',v:false,e:'Salah. Lebih dari dua langkah tanpa dribble adalah traveling.'},
+    {s:'Menghormati keputusan wasit adalah sikap sportif.',v:true,e:'Betul, wasit adalah pemimpin pertandingan.'},
+    {s:'Mengejek lawan yang kalah termasuk sikap sportif.',v:false,e:'Salah. Sportif berarti menghargai lawan.'}]
+};
+
+// ----- URUTKAN LANGKAH GERAKAN (tulis langkah dalam urutan yang BENAR) -----
+const ORDER={
+ chest:{judul:'Chest Pass',langkah:['Berdiri sikap siap: kaki selebar bahu, lutut sedikit ditekuk','Pegang bola dua tangan di depan dada, mata melihat rekan','Langkahkan satu kaki ke depan sambil mendorong bola lurus','Luruskan lengan, putar pergelangan sampai ibu jari ke bawah (gerak lanjut)']},
+ bounce:{judul:'Bounce Pass',langkah:['Berdiri sikap siap dan lihat rekan yang dituju','Pegang bola setinggi dada dengan dua tangan','Langkah ke depan, dorong bola ke lantai sekitar 2/3 jarak ke rekan','Lengan lurus ke bawah depan (gerak lanjut), rekan menangkap bola pantulan']},
+ overhead:{judul:'Overhead Pass',langkah:['Pegang bola di atas kepala dengan dua tangan, siku sedikit ditekuk','Lihat rekan yang dituju','Langkah ke depan sambil mengayun lengan ke depan','Lepas bola dengan jentikan pergelangan, lengan lurus ke depan']}
+};
+
+// ----- COCOKKAN PASANGAN: [nama, deskripsi] -----
+const MATCH={
+ 4:[['Set shot','Tembakan dari tempat dengan kedua kaki menapak lantai'],
+    ['Lay-up','Tembakan sambil melompat setelah dribble dan dua langkah dekat ring'],
+    ['Fase persiapan','Kaki selebar bahu, lutut ditekuk, bola di depan dada'],
+    ['Fase pelaksanaan','Lutut dan lengan diluruskan, bola dilepas dengan jentikan pergelangan'],
+    ['Gerak lanjut','Lengan tetap lurus ke arah ring setelah bola lepas']],
+ 5:[['Traveling','Melangkah lebih dari dua langkah tanpa mendribel'],
+    ['Double dribble','Dribble dua tangan atau mendribel lagi setelah berhenti'],
+    ['Charging','Penyerang menabrak pemain bertahan yang sudah diam'],
+    ['Pelanggaran 3 detik','Penyerang terlalu lama di area bawah ring'],
+    ['Lemparan bebas','Tembakan hukuman yang bernilai 1 poin']]
+};
+
+// ----- TEBAK NAMA TEKNIK DARI DESKRIPSI (format sama seperti MCQ) -----
+const GUESS={
+ 2:[{q:'TEBAK TEKNIK! "Bola dipantulkan setinggi lutut, badan merendah, untuk melindungi bola dari lawan."',o:['Dribble rendah','Dribble tinggi','Ganti tangan','Chest pass'],a:0,e:'Itu dribble rendah: bola setinggi lutut agar sulit direbut.'},
+    {q:'TEBAK TEKNIK! "Bola memantul setinggi pinggang saat pemain berlari cepat tanpa penjagaan."',o:['Dribble rendah','Dribble tinggi','Ganti tangan','Lay-up'],a:1,e:'Itu dribble tinggi, dipakai saat berlari cepat.'},
+    {q:'TEBAK TEKNIK! "Bola dipindah dari satu tangan ke tangan lain untuk mengubah arah."',o:['Dribble tinggi','Overhead pass','Ganti tangan','Set shot'],a:2,e:'Itu ganti tangan (change of hand).'}],
+ 4:[{q:'TEBAK TEKNIK! "Menembak sambil melompat setelah dribble dua langkah dekat ring."',o:['Set shot','Lay-up','Chest pass','Dribble tinggi'],a:1,e:'Itu lay-up.'},
+    {q:'TEBAK TEKNIK! "Menembak dari tempat, kedua kaki di lantai, bola didorong ke atas ke arah ring."',o:['Lay-up','Bounce pass','Set shot','Ganti tangan'],a:2,e:'Itu set shot.'},
+    {q:'TEBAK TEKNIK! "Lengan tetap lurus dan mata melihat ring setelah bola lepas."',o:['Fase persiapan','Gerak lanjut','Fase pelaksanaan','Lompat bola'],a:1,e:'Itu gerak lanjut (follow through).'}]
+};
+/* ========================== AKHIR DAFTAR SOAL ========================== */
+
+Object.keys(MCQ).forEach(k=>MCQ[k].forEach(q=>q.w=+k));
+Object.keys(GUESS).forEach(k=>GUESS[k].forEach(q=>q.w=+k));
+
+/* ======================== DEFINISI LEVEL ======================== */
+// ground:[[kolomAwal,kolomAkhir]] ; plats:[[kol,baris,lebar]] ; coins:[[kol,baris]]
+// lcoins:[kol,baris,label,fakta] ; items:[jenis,kol,baris] ; enemies:[jenis,kol,barisPijakan,minKol,maxKol]
+// zones:[jenis,kol,kunci] ; gates:[kolom] ; goal:kolom ring finish
+const LEVELS=[
+ {len:56,ground:[[0,13],[16,29],[33,42],[45,55]],
+  plats:[[7,9,3],[17,9,3],[22,8,4],[38,9,3],[46,9,4]],
+  lcoins:[[8,8,'PAPAN PANTUL','Papan pantul dipasang di belakang ring untuk memantulkan bola.'],[18,8,'RING','Ring dipasang setinggi 3,05 meter dari lantai.'],[23,7,'LINGKARAN TENGAH','Lingkaran tengah dipakai untuk lompat bola awal.'],[39,8,'LEMPAR BEBAS','Dari garis lemparan bebas, tembakan hukuman bernilai 1 poin.'],[47,8,'GARIS 3 POIN','Tembakan dari luar garis 3 poin bernilai 3 poin.']],
+  coins:[[3,10],[4,10],[5,10],[24,10],[25,10],[26,10],[35,9],[36,9],[37,9],[51,10],[52,10]],
+  items:[['sepatu',31,8],['botol',25,7],['bintang',49,8]],
+  enemies:[['cone',10,11],['ball',20,11,17,28],['pel',36,11,34,41],['cone',50,11]],
+  zones:[['tf',28,1]],gates:[],goal:53,
+  missions:[['coin','Kumpulkan 5 koin nama bagian lapangan',5],['tf','Selesaikan Benar/Salah Kilat',1]]},
+ {len:60,ground:[[0,11],[14,24],[28,37],[41,50],[53,59]],
+  plats:[[5,9,3],[16,9,4],[20,8,3],[30,9,3],[34,8,3],[43,9,3],[47,8,3]],
+  lcoins:[],coins:[[2,10],[3,10],[6,8],[7,8],[17,8],[18,8],[21,7],[29,10],[30,8],[35,7],[44,8],[48,7],[55,10],[56,10]],
+  items:[['botol',22,7],['sepatu',32,8],['bintang',49,7]],
+  enemies:[['cone',7,11],['pel',18,11,15,20],['cone',29,11],['ball',31,11,30,36],['cone',42,11],['pel',43,11,41,44],['ball',48,11,47,50],['cone',55,11]],
+  zones:[['guess',36,2]],gates:[9,23,46],goal:57,
+  missions:[['gate','Lewati 3 gerbang soal dribbling',3],['guess','Tebak nama teknik dribbling',1]]},
+ {len:60,ground:[[0,9],[12,20],[24,31],[34,44],[47,59]],
+  plats:[[3,9,3],[14,9,3],[17,8,3],[21,9,3],[26,9,3],[29,8,3],[36,9,3],[39,8,3],[42,7,3],[49,9,3],[52,8,3],[55,9,3]],
+  lcoins:[],coins:[[1,10],[2,10],[4,8],[5,8],[15,8],[18,7],[19,7],[22,8],[27,8],[30,7],[37,8],[40,7],[43,6],[50,8],[53,7],[56,8]],
+  items:[['botol',17,7],['sepatu',29,7],['bintang',44,6]],
+  enemies:[['cone',6,11],['ball',14,11,13,19],['pel',26,11,25,30],['cone',35,11],['ball',37,11,35,43],['pel',50,11,48,54],['cone',58,11]],
+  zones:[['order',7,'chest'],['order',28,'bounce'],['order',41,'overhead']],gates:[],goal:57,
+  missions:[['order','Susun 3 urutan gerakan passing',3]]},
+ {len:60,ground:[[0,12],[15,26],[29,40],[43,59]],
+  plats:[[5,9,3],[17,9,3],[20,8,3],[31,9,3],[34,8,3],[37,9,3],[45,9,3],[48,8,3],[51,9,3]],
+  lcoins:[],coins:[[2,10],[3,10],[6,8],[7,8],[10,10],[18,8],[21,7],[32,8],[35,7],[38,8],[46,8],[49,7],[52,8],[56,10],[57,10]],
+  items:[['botol',19,8],['sepatu',27,8],['bintang',50,7]],
+  enemies:[['cone',9,11],['ball',16,11,16,25],['pel',33,11,30,39],['cone',44,11],['ball',54,11,53,58]],
+  zones:[['match',23,4],['guess',39,4]],gates:[],goal:57,
+  missions:[['match','Cocokkan nama teknik dengan deskripsi',1],['guess','Tebak teknik menembak',1]]},
+ {len:64,ground:[[0,10],[13,24],[27,36],[40,50],[53,63]],
+  plats:[[4,9,3],[15,9,3],[18,8,3],[29,9,3],[32,8,3],[37,9,3],[41,9,3],[44,8,3],[47,9,3],[55,9,3],[58,8,3]],
+  lcoins:[],coins:[[2,10],[3,10],[5,8],[6,8],[16,8],[19,7],[22,10],[30,8],[33,7],[38,8],[42,8],[45,7],[48,8],[56,8],[59,7]],
+  items:[['botol',17,8],['sepatu',25,8],['botol',34,7],['bintang',46,7]],
+  enemies:[['cone',7,11],['pel',16,11,14,23],['cone',28,11],['ball',33,11,28,35],['pel',42,11,41,49],['cone',54,11],['ball',57,11,54,62]],
+  zones:[['tf',8,5],['match',31,5]],gates:[],goal:60,
+  missions:[['tf','Benar/Salah Kilat peraturan',1],['match','Cocokkan pelanggaran dan artinya',1]]}
+];
+
+/* ============================ UTIL ============================ */
+const rand=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const $=(s,r)=>(r||ui).querySelector(s);
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;
+const ui=document.getElementById('ui'),stage=document.getElementById('stage');
+
+/* ============================ AUDIO ============================ */
+let AC=null,muted=false;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,d,type,v,t0,f2){if(muted)return;const a=ac();if(!a)return;const o=a.createOscillator(),g=a.createGain();const t=a.currentTime+(t0||0);o.type=type||'square';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v||.07,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.02);}
+const SFX={
+ jump:()=>tone(300,.16,'square',.06,0,720),
+ coin:()=>{tone(988,.07);tone(1319,.14,'square',.06,.07);},
+ item:()=>{[523,659,784,1047].forEach((f,i)=>tone(f,.09,'square',.06,i*.07));},
+ right:()=>{tone(660,.1,'square',.07);tone(880,.1,'square',.07,.1);tone(1100,.18,'square',.07,.2);},
+ wrong:()=>{tone(220,.25,'sawtooth',.08,0,110);},
+ hit:()=>{tone(180,.2,'sawtooth',.09,0,60);},
+ stomp:()=>{tone(400,.1,'square',.07,0,150);},
+ throw:()=>tone(500,.1,'triangle',.07,0,900),
+ gate:()=>{tone(330,.08);tone(440,.08,'square',.06,.08);tone(660,.15,'square',.06,.16);},
+ win:()=>{[523,659,784,659,784,1047].forEach((f,i)=>tone(f,.16,'square',.07,i*.13));},
+ lose:()=>{[440,370,311,262].forEach((f,i)=>tone(f,.22,'sawtooth',.07,i*.18));}
+};
+
+/* ============================ SPRITE PIKSEL ============================ */
+function mk(map,pal,s){const h=map.length,w=map[0].length,c=document.createElement('canvas');c.width=w*s;c.height=h*s;const x=c.getContext('2d');for(let j=0;j<h;j++)for(let i=0;i<w;i++){const ch=map[j][i];if(pal[ch]){x.fillStyle=pal[ch];x.fillRect(i*s,j*s,s,s);}}return c;}
+const PB=["...hhhh...","..hhhhhh..","..skssks..","..ssssss..","...ssss...",".rrrrrrrr.","srrrwwrrrs","s.rrwwrr.s","..rrrrrr..","..bbbbbb.."];
+const LEG={
+ idle:["..bb..bb..","..ss..ss..","..yy..yy..",".yyy..yyy."],
+ run1:[".bbb..bb..",".ss....ss.",".yy....yy.","yyy....yyy"],
+ run2:["..bb..bbb.","..ss...ss.","..yy...yy.","..yyy.yyy."],
+ jump:[".bbb..bbb.","ss......ss","yy......yy",".........."]
+};
+const PP={h:'#4a2511',s:'#f4b183',k:'#1d1d2b',r:'#e63946',w:'#ffffff',b:'#2a5bd7',y:'#ffd23f'};
+const PE={h:'#111111',s:'#d9a066',k:'#d00000',r:'#6a1b9a',w:'#ffffff',b:'#333333',y:'#999999'};
+const SP={};
+SP.p={};for(const k in LEG)SP.p[k]=mk(PB.concat(LEG[k]),PP,2);
+SP.pel={};for(const k in LEG)SP.pel[k]=mk(PB.concat(LEG[k]),PE,2);
+SP.cone=mk(["....oo....","....oo....","...oooo...","...wwww...","..oooooo..","..oooooo..",".wwwwwwww.",".oooooooo.",".oooooooo.","oooooooooo","dddddddddd","dddddddddd"],{o:'#ff7b00',w:'#ffffff',d:'#333333'},2);
+function ballMap(n){const m=[],c=(n-1)/2;for(let j=0;j<n;j++){let r='';for(let i=0;i<n;i++){const d=Math.hypot(i-c,j-c);r+=d>n/2?'.':d>n/2-1?'k':(Math.abs(i-c)<.6||Math.abs(j-c)<.6)?'l':'o';}m.push(r);}return m;}
+SP.ball=mk(ballMap(10),{o:'#f28c28',k:'#5a2a00',l:'#5a2a00'},2);
+SP.ballS=mk(ballMap(10),{o:'#f28c28',k:'#5a2a00',l:'#5a2a00'},1);
+SP.heart=mk([".rr.rr.","rrrrrrr","rrrrrrr",".rrrrr.","..rrr..","...r..."],{r:'#ff3b4e'},3);
+SP.heart0=mk([".rr.rr.","rrrrrrr","rrrrrrr",".rrrrr.","..rrr..","...r..."],{r:'#4a4a5a'},3);
+SP.star=mk(["....y....","...yyy...","yyyyyyyyy",".yyyyyyy.","..yyyyy..","..yyyyy..",".yyy.yyy.",".yy...yy.","y.......y"],{y:'#ffd23f'},3);
+SP.bottle=mk(["..cc..","..cc..",".bbbb.",".bwwb.",".bwwb.",".bbbb.",".bwwb.",".bwwb.",".bbbb.",".bbbb.",".bbbb."],{c:'#e63946',b:'#4cc9f0',w:'#ffffff'},2);
+SP.shoe=mk(["....rrr.....","....rwr.....","....rrrr....","...rrrrrrr..",".rrrrrrrrrrr","wwwwwwwwwwww","kkkkkkkkkkkk"],{r:'#e63946',w:'#ffffff',k:'#222222'},2);
+const BOSSM=["..h........h..",".hh........hh.",".hhhhhhhhhhhh.","hhmmmmmmmmmmhh","hmmmmmmmmmmmmh","hmmwwmmmmwwmmh","hmmwkmmmmkwmmh","hmmmmmmmmmmmmh","hmmmmwwwwmmmmh","hmmmkwkwkwmmmh",".hmmmmmmmmmmh.",".hhmmmmmmmmhh.","..hh..hh..hh..","..hh..hh..hh.."];
+SP.boss=WORLDS.map(w=>mk(BOSSM,{h:w.bc.h,m:w.bc.m,w:'#ffffff',k:'#000000'},6));
+
+/* ============================ TEMA ============================ */
+const CROWD=['#e63946','#ffd23f','#4cc9f0','#ffffff'];
+function mkGrad(a,b){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,a);g.addColorStop(1,b);return g;}
+function cloud(x,y){ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(x,y+8,64,14);ctx.fillRect(x+10,y,34,14);ctx.fillRect(x+36,y+4,22,14);}
+function clouds(cx){const o=cx*.15;for(let i=-1;i<5;i++){const x=i*260-(o%260);cloud(x+40,40+((i&1)?30:0));}}
+const TH={
+ court:{sky:['#7ec8ff','#d6f0ff'],top:'#e8b060',fill:'#b8773a',line:'#8a5524',plat:'#c98a46',platTop:'#f0c27a',pit:'#1a1a2e',
+  deco(cx){clouds(cx);ctx.fillStyle='#2b3a67';ctx.fillRect(0,170,W,120);const o=cx*.3,b=Math.floor(o/40);for(let i=-1;i<22;i++){const x=i*40-(o%40);for(let j=0;j<3;j++){ctx.fillStyle=CROWD[(((i+b)*7+j*3)%4+4)%4];ctx.fillRect(x+8,180+j*30,22,22);ctx.fillStyle='#f4b183';ctx.fillRect(x+13,174+j*30,12,10);}}}},
+ forest:{sky:['#8be0ff','#e4ffe0'],top:'#4cc44c',fill:'#8b5a2b',line:'#6b4220',plat:'#6b4220',platTop:'#58d04a',pit:'#17321f',
+  deco(cx){clouds(cx);const o=cx*.4,b=Math.floor(o/90);for(let i=-1;i<11;i++){const x=i*90-(o%90),k=((i+b)&3)*6;ctx.fillStyle='#5a3a1a';ctx.fillRect(x+24,230+k,12,100);ctx.fillStyle='#2e8b3a';ctx.fillRect(x,200+k,60,40);ctx.fillStyle='#3fb950';ctx.fillRect(x+8,170+k,44,40);ctx.fillRect(x+16,148+k,28,28);}}},
+ mountain:{sky:['#9bb8ff','#f0f4ff'],top:'#f4f8ff',fill:'#7a7f92',line:'#5d6275',plat:'#8e94a8',platTop:'#ffffff',pit:'#26293a',
+  deco(cx){clouds(cx);const o=cx*.3,b=Math.floor(o/220);for(let i=-1;i<5;i++){const x=i*220-(o%220),k=((i+b)&3)*18;ctx.fillStyle='#5f6b92';ctx.beginPath();ctx.moveTo(x,340);ctx.lineTo(x+110,150+k);ctx.lineTo(x+220,340);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(x+110,150+k);ctx.lineTo(x+86,190+k);ctx.lineTo(x+134,190+k);ctx.fill();}}},
+ beach:{sky:['#4fc3f7','#fff3c4'],top:'#f6dca0',fill:'#e0b86e',line:'#c49a52',plat:'#a0693a',platTop:'#d9a066',pit:'#2a9df4',
+  deco(cx,t){clouds(cx);ctx.fillStyle='#ffe066';ctx.fillRect(640,50,60,60);ctx.fillRect(630,60,80,40);ctx.fillStyle='#2a9df4';ctx.fillRect(0,270,W,80);ctx.fillStyle='#6ccbff';for(let i=0;i<14;i++){ctx.fillRect(((i*60-(t*.5))%860+860)%860-30,285+(i%3)*18,30,3);}const o=cx*.5,b=Math.floor(o/240);for(let i=-1;i<5;i++){const x=i*240-(o%240);ctx.fillStyle='#7a4a1a';ctx.fillRect(x+30,230,8,100);ctx.fillStyle='#2e9a4a';ctx.fillRect(x,214,70,10);ctx.fillRect(x+10,204,50,10);}}},
+ castle:{sky:['#2b1055','#6a2c91'],top:'#7a5fb0',fill:'#3d2a63',line:'#2a1b47',plat:'#5a4590',platTop:'#9a82d6',pit:'#ff5a1f',
+  deco(cx,t){ctx.fillStyle='#fff';for(let i=0;i<30;i++){ctx.fillRect((i*97)%W,(i*53)%160,2,2);}const o=cx*.4,b=Math.floor(o/160);for(let i=-1;i<7;i++){const x=i*160-(o%160);ctx.fillStyle='#4a2f7a';ctx.fillRect(x+40,110,44,230);ctx.fillStyle='#5a3a8a';ctx.fillRect(x+36,100,52,14);ctx.fillStyle=(Math.floor(t/6)+i)%2?'#ffb703':'#ff7b00';ctx.fillRect(x+56,170,10,16);}}}
+};
+for(const k in TH){TH[k].g=null;}
+
+/* ============================ STATE ============================ */
+const S={mode:'title',ov:false,w:1,lives:3,hp:3,score:0,scoreStart:0,coins:0,coinsLv:0,name:'',kelas:'VII',
+ stats:{1:{ok:0,t:0},2:{ok:0,t:0},3:{ok:0,t:0},4:{ok:0,t:0},5:{ok:0,t:0}},
+ shoes:0,star:0,inv:0,toast:null,pops:[],parts:[],used:{},goalCD:0,scale:1,scene:'court',sx:0,pausedUI:false,boss:null};
+let L=null,P=null,cam=0,F=0,safe={x:0,y:0},balls=[],tick=0;
+function rec(w,ok){S.stats[w].t++;if(ok)S.stats[w].ok++;}
+function toast(s,f){S.toast={s:s,t:f||160};}
+function pop(x,y,s,c){S.pops.push({x:x,y:y,s:s,c:c||'#fff',t:50});}
+function burst(x,y,n,c){for(let i=0;i<n;i++)S.parts.push({x:x,y:y,vx:Math.random()*4-2,vy:-Math.random()*4,t:30,c:c||'#ffd23f'});}
+
+/* ============================ INPUT ============================ */
+const K={l:false,r:false,j:false,a:false,jp:false,ap:false};
+function stopKeys(){K.l=K.r=K.j=K.a=K.jp=K.ap=false;document.querySelectorAll('.tb').forEach(e=>e.classList.remove('on'));}
+addEventListener('keydown',e=>{
+ const tg=e.target&&e.target.tagName;if(tg==='INPUT'||tg==='SELECT')return;
+ const c=e.code;
+ if(c==='ArrowLeft'||c==='KeyA')K.l=true;
+ else if(c==='ArrowRight'||c==='KeyD')K.r=true;
+ else if(c==='ArrowUp'||c==='KeyW'||c==='Space'){if(!K.j)K.jp=true;K.j=true;}
+ else if(c==='KeyX'||c==='KeyK'||c==='KeyZ'||c==='KeyJ'||c==='ShiftLeft'||c==='ShiftRight'){if(!K.a)K.ap=true;K.a=true;}
+ else if(c==='KeyP'||c==='Escape'){togglePause();return;}
+ else return;
+ if(S.mode==='play'&&!S.ov)e.preventDefault();
+});
+addEventListener('keyup',e=>{const c=e.code;
+ if(c==='ArrowLeft'||c==='KeyA')K.l=false;
+ else if(c==='ArrowRight'||c==='KeyD')K.r=false;
+ else if(c==='ArrowUp'||c==='KeyW'||c==='Space')K.j=false;
+ else if(c==='KeyX'||c==='KeyK'||c==='KeyZ'||c==='KeyJ'||c==='ShiftLeft'||c==='ShiftRight')K.a=false;});
+function bindBtn(id,k,pk){const el=document.getElementById(id);
+ el.addEventListener('pointerdown',e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId);}catch(x){}if(pk&&!K[k])K[pk]=true;K[k]=true;el.classList.add('on');});
+ const up=()=>{K[k]=false;el.classList.remove('on');};
+ el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('lostpointercapture',up);}
+bindBtn('bl','l');bindBtn('br','r');bindBtn('bj','j','jp');bindBtn('ba','a','ap');
+const touchEl=document.getElementById('touch');
+const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+document.getElementById('mt').onclick=()=>{muted=!muted;document.getElementById('mt').textContent=muted?'SUARA:OFF':'SUARA:ON';if(!muted)SFX.coin();};
+document.getElementById('pz').onclick=()=>togglePause();
+function fit(){const s=Math.min(innerWidth/W,innerHeight/H);S.scale=s;stage.style.transform='translate(-50%,-50%) scale('+s+')';}
+addEventListener('resize',fit);addEventListener('orientationchange',fit);fit();
+
+/* ============================ UI HELPER ============================ */
+function screen(html,cls){ui.innerHTML='<div class="scr '+(cls||'')+'">'+html+'</div>';ui.style.display='block';S.ov=true;stopKeys();}
+function clearUI(){ui.innerHTML='';ui.style.display='none';S.ov=false;}
+function openBox(cls){screen('<div class="box '+(cls||'')+'" id="bx"></div>',cls==='compact'?'bot':'');return $('#bx');}
+function softHurt(){if(S.hp>1){S.hp--;SFX.hit();}}
+
+/* ============================ MCQ RENDERER ============================ */
+function renderMCQ(root,q,w,cb,o){
+ o=o||{};const idx=shuffle(q.o.map((x,i)=>i));let done=false;
+ root.innerHTML=(o.head?'<div class="hd">'+o.head+'</div>':'')+'<div class="qq">'+q.q+'</div><div id="opts">'+idx.map((k,i)=>'<button class="opt" data-k="'+k+'"><b>'+'ABCD'[i]+'.</b> '+q.o[k]+'</button>').join('')+'</div><div id="fb"></div>';
+ root.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+  if(done)return;done=true;const k=+b.dataset.k,ok=k===q.a;
+  root.querySelectorAll('.opt').forEach(x=>{const kk=+x.dataset.k;if(kk===q.a)x.classList.add('ok');else if(x===b)x.classList.add('no');else{x.classList.add('dim');if(o.compact)x.style.display='none';}});
+  rec(w,ok);if(ok){S.score+=(o.pts||100);SFX.right();}else SFX.wrong();
+  if(o.onAnswer)o.onAnswer(ok);
+  $('#fb',root).innerHTML='<div class="fb '+(ok?'g':'r')+'"><b>'+(ok?'BENAR!':'SALAH!')+'</b> '+q.e+'</div><div class="r"><button class="btn" id="nx">LANJUT ▶</button></div>';
+  $('#nx',root).onclick=()=>cb(ok);
+ });
+}
+function pickQ(w){const pool=MCQ[w];const used=S.used[w]||(S.used[w]=new Set());let c=pool.map((q,i)=>i).filter(i=>!used.has(i));if(!c.length){used.clear();c=pool.map((q,i)=>i);}const i=c[rand(c.length)];used.add(i);return pool[i];}
+function runSeq(w,list,head,done,hurt){
+ const bx=openBox();let i=0;
+ const step=()=>{if(i>=list.length){done();return;}
+  renderMCQ(bx,list[i],list[i].w||w,()=>{i++;step();},{head:head+(list.length>1?' '+(i+1)+'/'+list.length:''),onAnswer:ok=>{if(!ok)hurt();}});};
+ step();
+}
+
+/* ============================ MINI-GAME ============================ */
+function miniTF(w,items,done){
+ const list=shuffle(items).slice(0,6);let i=0,okc=0;const bx=openBox();
+ const step=()=>{
+  if(i>=list.length){bx.innerHTML='<div class="hd">HASIL KILAT</div><p>Kamu menjawab benar '+okc+' dari '+list.length+'!</p><div class="r"><button class="btn green" id="nx">SELESAI</button></div>';$('#nx').onclick=done;return;}
+  const it=list[i];let left=8000,fin=false;
+  bx.innerHTML='<div class="hd">BENAR / SALAH KILAT '+(i+1)+'/'+list.length+'</div><div class="qq">'+it.s+'</div><div class="bar"><i id="tb"></i></div><div id="ch" class="r2"><button class="btn green" id="yb">BENAR</button><button class="btn red" id="nb">SALAH</button></div><div id="fb"></div>';
+  let tm=null;
+  const ans=v=>{if(fin)return;fin=true;clearInterval(tm);const ok=v===it.v;rec(w,ok);if(ok){okc++;S.score+=50;SFX.right();}else{softHurt();SFX.wrong();}
+   $('#ch').style.display='none';
+   $('#fb').innerHTML='<div class="fb '+(ok?'g':'r')+'"><b>'+(v===null?'WAKTU HABIS!':ok?'BENAR!':'SALAH!')+'</b> '+it.e+'</div><div class="r"><button class="btn" id="nx">LANJUT ▶</button></div>';
+   $('#nx').onclick=()=>{i++;step();};};
+  tm=setInterval(()=>{left-=100;const b=$('#tb');if(b)b.style.width=(left/80)+'%';if(left<=0)ans(null);},100);
+  $('#yb').onclick=()=>ans(true);$('#nb').onclick=()=>ans(false);
+ };
+ step();
+}
+function miniOrder(w,def,done){
+ const n=def.langkah.length,bx=openBox();let slots=Array(n).fill(null),tries=0,solved=false,wrong=[];
+ const base=shuffle([...Array(n).keys()]);
+ const card=id=>'<div class="card" data-id="'+id+'">'+def.langkah[id]+'</div>';
+ function place(id,k){const from=slots.indexOf(id);
+  if(k===-1){if(from>=0)slots[from]=null;}
+  else{const occ=slots[k];slots[k]=id;if(from>=0&&from!==k)slots[from]=occ;}
+  wrong=[];draw();}
+ function tap(id){const from=slots.indexOf(id);if(from>=0)place(id,-1);else{const k=slots.indexOf(null);if(k>=0)place(id,k);}}
+ function bind(el){
+  el.addEventListener('pointerdown',e=>{if(solved)return;e.preventDefault();const id=+el.dataset.id,sx=e.clientX,sy=e.clientY;let moved=false;
+   const mv=ev=>{if(ev.pointerId!==e.pointerId)return;const dx=ev.clientX-sx,dy=ev.clientY-sy;if(!moved&&Math.hypot(dx,dy)>8){moved=true;el.classList.add('drag');}if(moved)el.style.transform='translate('+(dx/S.scale)+'px,'+(dy/S.scale)+'px)';};
+   const up=ev=>{if(ev.pointerId!==e.pointerId)return;document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',up);
+    if(ev.type==='pointercancel'){draw();return;}
+    if(!moved){tap(id);return;}
+    el.style.visibility='hidden';const t=document.elementFromPoint(ev.clientX,ev.clientY);el.style.visibility='';
+    const sl=t&&t.closest?t.closest('.slot'):null,pl=t&&t.closest?t.closest('#pool'):null;
+    if(sl)place(id,+sl.dataset.s);else if(pl)place(id,-1);else draw();};
+   document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up);});
+ }
+ function check(){
+  if(slots.includes(null)){draw('Isi semua kotak dulu ya!','warn');return;}
+  const wr=slots.map((id,k)=>id===k?-1:k).filter(k=>k>=0);tries++;const ok=wr.length===0;rec(w,ok);
+  if(ok){solved=true;S.score+=200;SFX.right();draw('BENAR! Urutan gerakan sudah tepat.','g');}
+  else{wrong=wr;softHurt();SFX.wrong();
+   if(tries>=3){slots=[...Array(n).keys()];solved=true;wrong=[];draw('Ini urutan yang benar. Pelajari ya!','r');}
+   else draw('Belum tepat. Tukar kartu yang berwarna merah!','r');}
+ }
+ function draw(msg,cls){
+  const pool=base.filter(id=>!slots.includes(id));
+  bx.innerHTML='<div class="hd">URUTKAN GERAKAN: '+def.judul.toUpperCase()+'</div><div class="hint">Seret kartu ke kotak bernomor, atau ketuk kartu.</div><div class="two"><div class="col" id="pool">'+(pool.map(card).join('')||'<div class="empty">Semua kartu sudah dipasang</div>')+'</div><div class="col">'+slots.map((id,k)=>'<div class="slot'+(wrong.includes(k)?' bad':'')+'" data-s="'+k+'"><span class="num">'+(k+1)+'</span>'+(id===null?'':card(id))+'</div>').join('')+'</div></div><div id="msg" class="'+(cls||'')+'">'+(msg||'')+'</div><div class="r">'+(solved?'<button class="btn green" id="nx">LANJUT ▶</button>':'<button class="btn" id="chk">CEK URUTAN</button>')+'</div>';
+  bx.querySelectorAll('.card').forEach(bind);
+  const c=$('#chk');if(c)c.onclick=check;const nx=$('#nx');if(nx)nx.onclick=done;
+ }
+ draw();
+}
+function miniMatch(w,pairs,done){
+ const bx=openBox(),Ls=shuffle(pairs.map((p,i)=>i)),Rs=shuffle(pairs.map((p,i)=>i));let sel=null;const solved=new Set();
+ function draw(msg,cls){
+  const fin=solved.size===pairs.length;
+  bx.innerHTML='<div class="hd">COCOKKAN PASANGAN</div><div class="hint">Ketuk nama di kiri, lalu ketuk deskripsi yang cocok di kanan.</div><div class="two"><div class="col">'+Ls.map(i=>'<button class="mt'+(solved.has(i)?' ok':'')+(sel&&sel.s==='L'&&sel.i===i?' sel':'')+'" data-s="L" data-i="'+i+'">'+pairs[i][0]+'</button>').join('')+'</div><div class="col">'+Rs.map(i=>'<button class="mt'+(solved.has(i)?' ok':'')+(sel&&sel.s==='R'&&sel.i===i?' sel':'')+'" data-s="R" data-i="'+i+'">'+pairs[i][1]+'</button>').join('')+'</div></div><div id="msg" class="'+(cls||'')+'">'+(msg||'')+'</div><div class="r">'+(fin?'<button class="btn green" id="nx">LANJUT ▶</button>':'')+'</div>';
+  bx.querySelectorAll('.mt').forEach(b=>b.onclick=()=>{const s=b.dataset.s,i=+b.dataset.i;if(solved.has(i))return;
+   if(!sel||sel.s===s){sel={s:s,i:i};draw();return;}
+   const li=s==='L'?i:sel.i,ri=s==='R'?i:sel.i;sel=null;
+   if(li===ri){solved.add(li);rec(w,true);S.score+=100;SFX.right();draw(solved.size===pairs.length?'Semua pasangan benar! Hebat!':'Cocok!','g');}
+   else{rec(w,false);softHurt();SFX.wrong();draw('Belum cocok. Coba lagi!','r');}});
+  const nx=$('#nx');if(nx)nx.onclick=done;
+ }
+ draw();
+}
+
+/* ============================ LEVEL ============================ */
+function mkEnemy(t,c,row,a,b){
+ const sz={cone:[20,24],ball:[20,20],pel:[20,28]}[t];
+ const e={t:t,w:sz[0],h:sz[1],x:c*T+(T-sz[0])/2,surf:row*T,vx:0,vy:0,dead:false,min:(a==null?c:a)*T,max:((b==null?c:b)+1)*T-sz[0]};
+ e.y=e.surf-e.h;if(t==='pel')e.vx=-1;if(t==='ball')e.vx=-1.4;return e;
+}
+function startLevel(w){
+ S.w=w;const d=LEVELS[w-1];L={len:d.len,map:[],d:d};
+ for(let r=0;r<ROWS;r++)L.map.push(new Array(d.len).fill(0));
+ d.ground.forEach(g=>{for(let c=g[0];c<=g[1];c++)for(let r=11;r<ROWS;r++)L.map[r][c]=1;});
+ d.plats.forEach(p=>{for(let i=0;i<p[2];i++)L.map[p[1]][p[0]+i]=2;});
+ d.gates.forEach(c=>{for(let r=5;r<=10;r++)L.map[r][c]=3;});
+ L.coins=d.coins.map(c=>({x:c[0]*T+16,y:c[1]*T+16,got:false}))
+  .concat(d.lcoins.map(c=>({x:c[0]*T+16,y:c[1]*T+16,got:false,label:c[2],fact:c[3]})));
+ L.items=d.items.map(i=>({t:i[0],x:i[1]*T+16,y:i[2]*T+16,got:false}));
+ L.en=d.enemies.map(e=>mkEnemy(e[0],e[1],e[2],e[3],e[4]));
+ L.zones=[];
+ d.zones.forEach(z=>L.zones.push({k:z[0],x:z[1]*T,y:0,w:T,h:H,key:z[2],done:false}));
+ d.gates.forEach((c,i)=>L.zones.push({k:'gate',x:(c-2)*T,y:0,w:2*T,h:H,col:c,idx:i,done:false}));
+ L.zones.push({k:'goal',x:(d.goal-1)*T,y:0,w:3*T,h:H,done:false});
+ L.missions=d.missions.map(m=>({id:m[0],text:m[1],need:m[2],have:0})).concat([{id:'boss',text:'Kalahkan Boss Quiz: '+WORLDS[w-1].boss,need:1,have:0}]);
+ P={x:2*T,y:11*T-28,w:18,h:28,vx:0,vy:0,face:1,onGround:true,kb:0,kd:1,coy:0,buf:0,cd:0};
+ safe={x:P.x,y:P.y};cam=0;balls=[];S.hp=3;S.shoes=0;S.star=0;S.inv=60;S.coinsLv=0;S.pops=[];S.parts=[];S.used={};S.goalCD=0;S.boss=null;
+ S.scoreStart=S.score;S.mode='play';S.scene=WORLDS[w-1].theme;
+ clearUI();toast('DUNIA '+w+': '+WORLDS[w-1].n.toUpperCase(),150);
+}
+function mis(id){const m=L.missions.find(x=>x.id===id);if(!m)return;m.have=Math.min(m.need,m.have+1);if(m.have>=m.need&&!m.ann){m.ann=true;toast('MISI SELESAI! '+m.text,170);SFX.item();}}
+function allDone(){return L.missions.every(m=>m.id==='boss'||m.have>=m.need);}
+
+/* ============================ FISIKA ============================ */
+function solid(c,r){if(c<0||c>=L.len)return true;if(r<0||r>=ROWS)return false;const t=L.map[r][c];return t===1||t===3;}
+function movePlayer(){
+ const p=P;p.x+=p.vx;
+ let r0=Math.floor(p.y/T),r1=Math.floor((p.y+p.h-.01)/T);
+ if(p.vx>0){const c=Math.floor((p.x+p.w)/T);for(let r=r0;r<=r1;r++)if(solid(c,r)){p.x=c*T-p.w-.01;p.vx=0;break;}}
+ else if(p.vx<0){const c=Math.floor(p.x/T);for(let r=r0;r<=r1;r++)if(solid(c,r)){p.x=(c+1)*T+.01;p.vx=0;break;}}
+ const prevB=p.y+p.h;p.y+=p.vy;p.onGround=false;
+ const c0=Math.floor((p.x+.01)/T),c1=Math.floor((p.x+p.w-.01)/T);
+ if(p.vy>=0){const r=Math.floor((p.y+p.h)/T);
+  for(let c=c0;c<=c1;c++){const t=(r>=0&&r<ROWS&&c>=0&&c<L.len)?L.map[r][c]:0;
+   if(t===1||t===3||(t===2&&prevB<=r*T+1)){p.y=r*T-p.h;p.vy=0;p.onGround=true;break;}}}
+ else{const r=Math.floor(p.y/T);for(let c=c0;c<=c1;c++)if(solid(c,r)){p.y=(r+1)*T;p.vy=0;break;}}
+}
+function ov(a,b,m){m=m||0;return a.x+m<b.x+b.w&&a.x+a.w-m>b.x&&a.y+m<b.y+b.h&&a.y+a.h-m>b.y;}
+function hurt(n){if(S.inv>0||S.star>0)return;S.hp-=n;S.inv=90;SFX.hit();P.vy=-5;P.kb=10;if(S.hp<=0){S.hp=0;playerDie();}}
+function fall(){S.hp--;SFX.hit();if(S.hp<=0){S.hp=0;playerDie();return;}P.x=safe.x;P.y=safe.y;P.vx=0;P.vy=0;S.inv=90;toast('Awas jurang! HP -1',90);}
+function kill(e,pts){e.dead=true;S.score+=pts;pop(e.x,e.y-6,'+'+pts,'#ffd23f');burst(e.x+e.w/2,e.y+e.h/2,6,'#fff');}
+
+function update(){
+ const p=P;
+ if(S.goalCD>0)S.goalCD--;if(S.inv>0)S.inv--;if(S.shoes>0)S.shoes--;if(S.star>0)S.star--;if(p.cd>0)p.cd--;
+ if(K.jp){p.buf=7;K.jp=false;}
+ const tx=(K.r?1:0)-(K.l?1:0);
+ if(p.kb>0){p.kb--;p.vx=p.kd*2.2;}
+ else{p.vx+=(tx*3.3-p.vx)*.35;if(Math.abs(p.vx)<.05)p.vx=0;if(tx)p.face=tx;}
+ if(p.onGround)p.coy=6;else if(p.coy>0)p.coy--;
+ if(p.buf>0)p.buf--;
+ if(p.buf>0&&p.coy>0){p.vy=S.shoes>0?-13.2:-11;p.coy=0;p.buf=0;p.onGround=false;SFX.jump();}
+ if(!K.j&&p.vy<-4.5)p.vy=-4.5;
+ p.vy=Math.min(p.vy+.55,13);
+ movePlayer();
+ if(K.ap){K.ap=false;if(p.cd<=0){p.cd=22;balls.push({x:p.x+p.w/2+p.face*8,y:p.y+10,vx:p.face*7,vy:-1.5,life:60});SFX.throw();}}
+ if(p.onGround&&F%8===0&&solid(Math.floor((p.x-8)/T),Math.floor((p.y+p.h+1)/T))&&solid(Math.floor((p.x+p.w+8)/T),Math.floor((p.y+p.h+1)/T))||p.onGround&&F%8===0&&L.map[Math.min(ROWS-1,Math.floor((p.y+p.h+1)/T))][Math.max(0,Math.min(L.len-1,Math.floor((p.x+p.w/2)/T)))]===2)safe={x:p.x,y:p.y};
+ if(p.y>H+30)fall();
+ // koin
+ const pc={x:p.x+p.w/2,y:p.y+p.h/2};
+ for(const c of L.coins){if(c.got)continue;if(Math.abs(pc.x-c.x)<18&&Math.abs(pc.y-c.y)<22){c.got=true;S.coins++;S.coinsLv++;
+  if(c.label){S.score+=50;SFX.item();pop(c.x,c.y-14,'+50','#9be7ff');toast(c.label+': '+c.fact,260);mis('coin');}
+  else{S.score+=10;SFX.coin();pop(c.x,c.y-14,'+10','#ffd23f');}burst(c.x,c.y,4);}}
+ for(const it of L.items){if(it.got)continue;if(Math.abs(pc.x-it.x)<20&&Math.abs(pc.y-it.y)<24){it.got=true;SFX.item();
+  if(it.t==='botol'){if(S.hp<5){S.hp++;pop(it.x,it.y-14,'HP +1','#ff6b6b');}else{S.score+=50;pop(it.x,it.y-14,'+50','#ffd23f');}}
+  else if(it.t==='sepatu'){S.shoes=600;pop(it.x,it.y-14,'LOMPAT TINGGI!','#9be7ff');}
+  else{S.star=300;pop(it.x,it.y-14,'KEBAL 5 DETIK!','#ffd23f');}burst(it.x,it.y,8);}}
+ // musuh
+ for(const e of L.en){if(e.dead)continue;
+  if(e.t==='pel'||e.t==='ball'){e.x+=e.vx;if(e.x<e.min){e.x=e.min;e.vx=-e.vx;}else if(e.x>e.max){e.x=e.max;e.vx=-e.vx;}}
+  if(e.t==='ball'){e.vy+=.45;e.y+=e.vy;if(e.y+e.h>=e.surf){e.y=e.surf-e.h;e.vy=-7.2;}}
+  if(ov(p,e,3)){
+   if(S.star>0)kill(e,100);
+   else if(e.t!=='cone'&&p.vy>1&&(p.y+p.h-e.y)<16){kill(e,100);p.vy=-8;SFX.stomp();}
+   else if(S.inv<=0){p.kd=(p.x+p.w/2<e.x+e.w/2)?-1:1;hurt(1);}
+  }}
+ // bola lempar
+ for(let i=balls.length-1;i>=0;i--){const b=balls[i];b.vy+=.12;b.x+=b.vx;b.y+=b.vy;b.life--;let rm=b.life<=0||solid(Math.floor(b.x/T),Math.floor(b.y/T));
+  for(const e of L.en){if(!e.dead&&b.x>e.x-4&&b.x<e.x+e.w+4&&b.y>e.y-4&&b.y<e.y+e.h+4){kill(e,150);SFX.stomp();rm=true;break;}}
+  if(rm)balls.splice(i,1);}
+ // zona
+ if(!S.ov)for(const z of L.zones){if(S.ov)break;if(p.x+p.w>z.x&&p.x<z.x+z.w)trigger(z);}
+ // efek
+ for(let i=S.pops.length-1;i>=0;i--){const q=S.pops[i];q.y-=.6;if(--q.t<=0)S.pops.splice(i,1);}
+ for(let i=S.parts.length-1;i>=0;i--){const q=S.parts[i];q.x+=q.vx;q.y+=q.vy;q.vy+=.2;if(--q.t<=0)S.parts.splice(i,1);}
+ if(S.toast&&--S.toast.t<=0)S.toast=null;
+ const tg=p.x+p.w/2-W/2+p.face*40;cam+=(tg-cam)*.12;cam=Math.max(0,Math.min(L.len*T-W,cam));
+}
+
+/* ============================ ZONA & ALUR ============================ */
+function trigger(z){
+ if(z.k==='goal'){if(!allDone()){if(S.goalCD<=0){toast('Selesaikan semua misi dulu!',120);S.goalCD=150;}return;}startBoss();return;}
+ if(z.done)return;const w=S.w;
+ if(z.k==='gate'){z.done=true;const total=L.d.gates.length;SFX.gate();
+  runSeq(w,[pickQ(w)],'GERBANG SOAL '+(z.idx+1)+'/'+total,()=>{
+   if(S.hp<=0){playerDie();return;}
+   for(let r=5;r<=10;r++)L.map[r][z.col]=0;burst(z.col*T+16,6*T,24,'#fff');SFX.gate();mis('gate');clearUI();},
+   ()=>{S.hp=Math.max(0,S.hp-1);SFX.hit();});
+  return;}
+ z.done=true;
+ const fin=()=>{mis(z.k);clearUI();};
+ if(z.k==='tf')miniTF(w,TF[z.key],fin);
+ else if(z.k==='order')miniOrder(w,ORDER[z.key],fin);
+ else if(z.k==='match')miniMatch(w,MATCH[z.key],fin);
+ else if(z.k==='guess')runSeq(w,GUESS[z.key],'TEBAK NAMA TEKNIK',fin,softHurt);
+}
+function playerDie(){
+ SFX.lose();S.lives--;S.mode='dead';
+ if(S.lives<=0){
+  screen('<div class="box c"><div class="title" style="font-size:24px">GAME OVER</div><p>Nyawa habis, tapi jangan menyerah!</p><p>Skor: '+S.score+'</p><button class="btn green big" id="re">COBA LAGI</button></div>');
+  $('#re').onclick=()=>{S.lives=3;S.score=S.scoreStart;startLevel(S.w);};
+ }else{
+  screen('<div class="box c"><div class="hd">HP HABIS!</div><p>Nyawa tersisa: '+S.lives+'</p><p>Level diulang dari awal. Semangat!</p><button class="btn green big" id="re">ULANGI LEVEL</button></div>');
+  $('#re').onclick=()=>{S.score=S.scoreStart;startLevel(S.w);};
+ }
+}
+function togglePause(){
+ if(S.mode!=='play')return;
+ if(S.ov){if(S.pausedUI){clearUI();S.pausedUI=false;}return;}
+ S.pausedUI=true;
+ screen('<div class="box"><div class="hd">PAUSE - MISI DUNIA '+S.w+'</div><ul class="lst">'+L.missions.map(m=>'<li>['+(m.have>=m.need?'X':'&nbsp;')+'] '+m.text+(m.need>1?' ('+m.have+'/'+m.need+')':'')+'</li>').join('')+'</ul><div class="mini">Panah/WASD = gerak, Spasi = lompat, X/K = lempar bola</div><div class="r"><button class="btn green" id="rs">LANJUTKAN</button></div></div>');
+ $('#rs').onclick=()=>{clearUI();S.pausedUI=false;};
+}
+
+/* ============================ BOSS QUIZ ============================ */
+function startBoss(){
+ S.mode='boss';stopKeys();clearUI();const w=S.w;const n=w===5?5:4;
+ S.boss={hp:n,max:n,count:0,shakeB:0,shakeP:0,anim:null};
+ toast('BOSS: '+WORLDS[w-1].boss.toUpperCase()+'!',90);
+ nextBossQ();
+}
+function nextBossQ(){
+ const w=S.w,b=S.boss;let q;
+ if(w===5){q=(b.count%5<3)?pickQ(5):pickQ(1+rand(4));}else q=pickQ(w);b.count++;
+ const bx=openBox('compact');
+ renderMCQ(bx,q,q.w||w,()=>{
+  if(b.hp<=0)bossWin();else if(S.hp<=0)playerDie();else nextBossQ();
+ },{head:'BOSS: '+WORLDS[w-1].boss.toUpperCase()+' - sisa tenaga '+b.hp,pts:150,compact:true,
+  onAnswer:ok=>{if(ok){b.hp--;b.anim={k:'hit',t:0};}else{S.hp=Math.max(0,S.hp-1);b.anim={k:'miss',t:0};SFX.hit();}}});
+}
+function bossWin(){
+ const w=S.w;L.missions.find(m=>m.id==='boss').have=1;SFX.win();S.mode='clear';
+ const bonus=500+S.hp*100;S.score+=bonus;S.scene=WORLDS[w-1].theme;
+ const st=S.stats[w];
+ screen('<div class="box c"><div class="hd" style="font-size:14px">DUNIA '+w+' SELESAI!</div><p>'+WORLDS[w-1].boss+' berhasil dikalahkan!</p><ul class="lst" style="text-align:left;display:inline-block">'+L.missions.map(m=>'<li>[X] '+m.text+'</li>').join('')+'</ul><p>Bonus: +'+bonus+' &nbsp; Skor: '+S.score+'</p><p class="mini">Jawaban benar dunia ini: '+st.ok+' dari '+st.t+'</p><button class="btn green big" id="nx">'+(w<5?'DUNIA BERIKUTNYA ▶':'LIHAT HASIL ▶')+'</button></div>');
+ $('#nx').onclick=()=>{if(w<5)showSummary(w+1);else showEnding();};
+}
+
+/* ============================ LAYAR-LAYAR ============================ */
+function showTitle(){
+ S.mode='title';S.scene='court';
+ screen('<div class="box c" style="max-width:640px"><div class="title">PETUALANGAN<br>SI DRIBEL</div><div class="sub">Misi Bola Basket - PJOK SMP Kelas VII-IX</div><div class="row"><span>NAMA:</span><input id="nm" maxlength="22" placeholder="Tulis namamu" autocomplete="off"></div><div class="row"><span>KELAS:</span><select id="kl"><option>VII</option><option>VIII</option><option>IX</option></select></div><button class="btn big" id="st"><span class="blink">PRESS START</span></button><div class="help">LAPTOP: Panah/WASD = gerak, SPASI = lompat, X/K = lempar bola, P = pause<br>HP: pakai tombol di layar. Kumpulkan koin, jawab soal, kalahkan boss!</div></div>');
+ $('#st').onclick=()=>{
+  const v=$('#nm').value.trim();ac();
+  if(!v){$('#nm').style.borderColor='#e63946';$('#nm').placeholder='Isi namamu dulu ya!';SFX.wrong();return;}
+  S.name=v;S.kelas=$('#kl').value;S.lives=3;S.score=0;S.coins=0;
+  for(let i=1;i<=5;i++)S.stats[i]={ok:0,t:0};
+  showStory(0);};
+}
+function showStory(i){
+ const pages=['Di Dunia Basket, semua bermain dengan riang. Di tengah kota tersimpan BOLA EMAS yang membuat setiap pertandingan adil dan seru.','Suatu malam, RAJA TURNOVER mencuri Bola Emas! Ia menyebar banyak kesalahan permainan ke seluruh dunia.','SI DRIBEL, pemain kecil yang pemberani, berangkat merebutnya kembali. Bantu dia melewati 5 dunia dan belajar basket di sepanjang jalan!'];
+ S.mode='title';
+ screen('<div class="box"><div class="hd">CERITA ('+(i+1)+'/3)</div><p style="font-size:11px;line-height:1.9">'+pages[i]+'</p><div class="r"><button class="btn" id="nx">'+(i<2?'LANJUT ▶':'MULAI PETUALANGAN ▶')+'</button></div></div>','bot');
+ $('#nx').onclick=()=>{SFX.coin();if(i<2)showStory(i+1);else showSummary(1);};
+}
+function showSummary(w){
+ S.w=w;S.mode='title';S.scene=WORLDS[w-1].theme;const W0=WORLDS[w-1];
+ screen('<div class="box"><div class="hd">DUNIA '+w+': '+W0.n.toUpperCase()+'</div><div style="color:#9be7ff;margin-bottom:4px">RANGKUMAN MATERI</div><ul class="lst">'+W0.sum.map(s=>'<li>'+s+'</li>').join('')+'</ul><div class="r"><button class="btn" id="nx">LANJUT ▶</button></div></div>');
+ $('#nx').onclick=()=>{SFX.coin();showMissions(w);};
+}
+function showMissions(w){
+ const d=LEVELS[w-1],W0=WORLDS[w-1];
+ const ms=d.missions.map(m=>m[1]).concat(['Kalahkan Boss Quiz: '+W0.boss]);
+ screen('<div class="box"><div class="hd">MISI DUNIA '+w+'</div><ul class="lst" style="list-style:none;padding:0">'+ms.map(m=>'<li>[&nbsp;] '+m+'</li>').join('')+'</ul><div class="mini">Kamu punya 3 HP tiap level. Salah menjawab = HP berkurang. Tombol B / X = lempar bola untuk mengalahkan lawan. Botol = +1 HP, sepatu = lompat tinggi, bintang = kebal.</div><div class="r"><button class="btn green" id="go">MULAI! ▶</button></div></div>');
+ $('#go').onclick=()=>{SFX.coin();startLevel(w);};
+}
+function starSVG(on){return '<svg width="30" height="30" viewBox="0 0 24 24" style="margin:0 2px"><polygon points="12,2 15,9 22,9.5 17,14.5 18.5,22 12,18 5.5,22 7,14.5 2,9.5 9,9" fill="'+(on?'#ffd23f':'#444')+'" stroke="#000" stroke-width="1.5"/></svg>';}
+function showEnding(){
+ S.mode='end';S.scene='castle';SFX.win();
+ let ok=0,t=0;for(let i=1;i<=5;i++){ok+=S.stats[i].ok;t+=S.stats[i].t;}
+ const acc=t?ok/t:0;const stars=acc>=.85?3:acc>=.65?2:1;
+ const weak=[];for(let i=1;i<=5;i++){const s=S.stats[i];if(s.t&&s.ok/s.t<.7)weak.push('Dunia '+i+': '+WORLDS[i-1].topik);}
+ const rows=[1,2,3,4,5].map(i=>{const s=S.stats[i];const p=s.t?Math.round(s.ok/s.t*100):0;return '<div>D'+i+' '+WORLDS[i-1].n.split(' ')[0]+': '+s.ok+'/'+s.t+' ('+p+'%)</div>';}).join('');
+ screen('<div class="box c" style="max-height:440px"><div class="hd" style="font-size:13px">SELAMAT! BOLA EMAS KEMBALI!</div><div style="font-size:9px;line-height:1.6;margin-bottom:6px">Raja Turnover kalah. '+S.name+' hebat!</div><div class="stat"><div style="text-align:left"><div>NAMA: <b style="color:#ffd23f">'+S.name+'</b></div><div>KELAS: '+S.kelas+'</div><div>SKOR AKHIR: <b style="color:#ffd23f">'+S.score+'</b></div><div>KOIN: '+S.coins+'</div><div>BENAR: '+ok+' dari '+t+' ('+Math.round(acc*100)+'%)</div><div style="margin-top:6px">'+starSVG(stars>=1)+starSVG(stars>=2)+starSVG(stars>=3)+'</div></div><div style="text-align:left"><div style="color:#9be7ff">HASIL PER DUNIA</div><div class="mini">'+rows+'</div><div style="color:#ff9aa6;margin-top:6px">PERLU DIULANG:</div><div class="mini">'+(weak.length?weak.join('<br>'):'Hebat! Semua materi sudah kamu kuasai.')+'</div></div></div><div class="mini" style="margin-top:8px">Screenshot layar ini dan kirim ke gurumu ya!</div><button class="btn green" id="ag">MAIN LAGI</button></div>');
+ $('#ag').onclick=()=>showTitle();
+}
+
+/* ============================ RENDER ============================ */
+function txt(s,x,y,sz,col,al){ctx.font=sz+'px "Press Start 2P",monospace';ctx.textAlign=al||'left';ctx.textBaseline='top';ctx.fillStyle='#000';ctx.fillText(s,x+1,y+1);ctx.fillStyle=col||'#fff';ctx.fillText(s,x,y);}
+function wrap(s,n){const ws=s.split(' '),ls=[];let c='';for(const w of ws){if((c+' '+w).trim().length>n){ls.push(c);c=w;}else c=(c+' '+w).trim();}if(c)ls.push(c);return ls;}
+function sky(th){if(!th.g)th.g=mkGrad(th.sky[0],th.sky[1]);ctx.fillStyle=th.g;ctx.fillRect(0,0,W,H);}
+function drawTiles(th,cx){
+ const c0=Math.max(0,Math.floor(cx/T)),c1=Math.min(L.len-1,c0+26);
+ for(let r=0;r<ROWS;r++)for(let c=c0;c<=c1;c++){const t=L.map[r][c];if(!t)continue;const x=c*T-cx,y=r*T;
+  if(t===1){ctx.fillStyle=th.fill;ctx.fillRect(x,y,T,T);ctx.fillStyle=th.line;ctx.fillRect(x,y+T-2,T,2);ctx.fillRect(x+T-2,y,2,T);
+   if(r===0||L.map[r-1][c]!==1){ctx.fillStyle=th.top;ctx.fillRect(x,y,T,8);ctx.fillStyle=th.line;ctx.fillRect(x,y+8,T,2);}}
+  else if(t===2){ctx.fillStyle=th.plat;ctx.fillRect(x,y,T,12);ctx.fillStyle=th.platTop;ctx.fillRect(x,y,T,4);ctx.fillStyle=th.line;ctx.fillRect(x+T-2,y,2,12);ctx.fillRect(x,y+12,T,2);}
+  else if(t===3){ctx.fillStyle=(r%2)?'#ffffff':'#e63946';ctx.fillRect(x+3,y,T-6,T);ctx.fillStyle='#000';ctx.fillRect(x+3,y,2,T);ctx.fillRect(x+T-5,y,2,T);if(r===7)txt('?',x+16,y+10,14,'#222','center');}
+ }
+}
+function drawHoop(cx){
+ const x0=L.d.goal*T+22-cx;ctx.fillStyle='#888';ctx.fillRect(x0,4*T,6,7*T);
+ ctx.fillStyle='#fff';ctx.fillRect(x0-6,3*T+10,14,60);ctx.fillStyle='#000';ctx.fillRect(x0-6,3*T+10,2,60);ctx.fillStyle='#e63946';ctx.fillRect(x0-2,3*T+34,6,22);
+ ctx.fillStyle='#ff7b00';ctx.fillRect(x0-42,3*T+56,38,5);ctx.fillStyle='rgba(255,255,255,.9)';for(let i=0;i<5;i++)ctx.fillRect(x0-40+i*8,3*T+61,2,18);
+ txt('FINISH',x0-26,3*T-8,8,'#ffd23f','center');
+}
+function drawZone(z,cx){
+ if(z.k==='goal'||z.k==='gate')return;const x=z.x-cx;if(x<-60||x>W+60)return;
+ const col={tf:'#e63946',order:'#2a5bd7',match:'#2e9a4a',guess:'#9d4edd'}[z.k],lab={tf:'B/S',order:'1-2-3',match:'A=B',guess:'?!'}[z.k];
+ ctx.fillStyle='#6b4220';ctx.fillRect(x+13,11*T-42,6,42);ctx.fillStyle=z.done?'#777':col;ctx.fillRect(x-8,11*T-72,48,32);ctx.fillStyle='#000';ctx.fillRect(x-8,11*T-72,48,3);ctx.fillRect(x-8,11*T-43,48,3);
+ txt(lab,x+16,11*T-63,9,'#fff','center');
+ if(!z.done&&F%40<28){ctx.fillStyle='#ffd23f';ctx.fillRect(x+12,11*T-92+(F%40<14?0:2),8,8);}
+}
+function drawPlayer(img,x,y,face,sc){ctx.save();const w=img.width*sc,h=img.height*sc;if(face<0){ctx.translate(x+w,y);ctx.scale(-1,1);ctx.drawImage(img,0,0,w,h);}else ctx.drawImage(img,x,y,w,h);ctx.restore();}
+function playerImg(p){if(!p.onGround)return SP.p.jump;if(Math.abs(p.vx)>.3)return (Math.floor(F/6)%2)?SP.p.run1:SP.p.run2;return SP.p.idle;}
+function heartBar(x,y){const n=Math.max(3,S.hp);for(let i=0;i<n;i++)ctx.drawImage(i<S.hp?SP.heart:SP.heart0,x+i*24,y);}
+function hud(){
+ ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(0,0,W,30);
+ heartBar(8,6);
+ for(let i=0;i<S.lives;i++)ctx.drawImage(SP.ballS,0,0,10,10,150+i*16,10,12,12);
+ txt('SKOR '+String(S.score).padStart(6,'0'),300,10,10,'#fff');
+ ctx.drawImage(SP.ballS,0,0,10,10,490,9,13,13);txt('x'+S.coins,508,10,10,'#ffd23f');
+ txt('D'+S.w,560,10,10,'#9be7ff');
+ if(S.mode==='play'&&L){const m=L.missions.find(x=>x.have<x.need&&x.id!=='boss');const t=m?(m.text+(m.need>1?' '+m.have+'/'+m.need:'')):'Menuju ring FINISH!';
+  ctx.fillStyle='rgba(0,0,0,.55)';const tw=Math.min(W-20,t.length*8+16);ctx.fillRect(6,34,tw,16);txt(t,12,38,8,m?'#ffd23f':'#8dfc9c');
+  let y=54;if(S.shoes>0){txt('SEPATU '+Math.ceil(S.shoes/60)+'s',12,y,8,'#9be7ff');y+=12;}if(S.star>0)txt('KEBAL '+Math.ceil(S.star/60)+'s',12,y,8,'#ffd23f');}
+}
+function drawPlay(){
+ const th=TH[WORLDS[S.w-1].theme],cx=Math.round(cam);
+ sky(th);th.deco(cx,F);
+ ctx.fillStyle=th.pit;ctx.fillRect(0,11*T+4,W,H);
+ if(S.w===4){ctx.fillStyle='#6ccbff';for(let i=0;i<16;i++)ctx.fillRect(((i*60-F)%860+860)%860-30,11*T+8+(i%3)*10,26,3);}
+ if(S.w===5){ctx.fillStyle='#ffb703';for(let i=0;i<12;i++)ctx.fillRect(((i*80+F)%860)-30,11*T+8+(i%3)*10,18,4);}
+ drawTiles(th,cx);drawHoop(cx);L.zones.forEach(z=>drawZone(z,cx));
+ for(const c of L.coins){if(c.got)continue;const x=c.x-cx;if(x<-30||x>W+30)continue;const sw=Math.max(.15,Math.abs(Math.cos(F/14+c.x)))*20;ctx.drawImage(SP.ball,x-sw/2,c.y-10,sw,20);
+  if(c.label){const near=Math.abs(P.x-c.x)<170;txt(c.label,x,c.y-30,near?9:7,'#fff','center');}}
+ for(const it of L.items){if(it.got)continue;const x=it.x-cx,y=it.y+Math.sin(F/10)*3;const im=it.t==='botol'?SP.bottle:it.t==='sepatu'?SP.shoe:SP.star;ctx.drawImage(im,x-im.width/2,y-im.height/2);}
+ for(const e of L.en){if(e.dead)continue;const x=e.x-cx;if(x<-40||x>W+40)continue;
+  if(e.t==='cone')ctx.drawImage(SP.cone,x,e.y);
+  else if(e.t==='ball'){ctx.save();ctx.translate(x+10,e.y+10);ctx.rotate(F*.15*Math.sign(e.vx||1));ctx.drawImage(SP.ball,-10,-10);ctx.restore();}
+  else drawPlayer((Math.floor(F/8)%2)?SP.pel.run1:SP.pel.run2,x-0,e.y,e.vx<0?-1:1,1);}
+ for(const b of balls)ctx.drawImage(SP.ballS,0,0,10,10,b.x-cx-6,b.y-6,12,12);
+ if(!(S.inv>0&&F%6<3)){const p=P;if(S.star>0){ctx.fillStyle='rgba(255,230,80,'+(.35+.2*Math.sin(F/3))+')';ctx.fillRect(p.x-cx-6,p.y-4,p.w+12,p.h+8);}
+  drawPlayer(playerImg(p),p.x-cx-1,p.y,p.face,1);}
+ for(const q of S.parts){ctx.fillStyle=q.c;ctx.fillRect(q.x-cx,q.y,3,3);}
+ for(const q of S.pops)txt(q.s,q.x-cx,q.y,8,q.c,'center');
+ hud();
+ if(S.toast){const ls=wrap(S.toast.s,56);const h=ls.length*14+12;const al=Math.min(1,S.toast.t/20);ctx.globalAlpha=al;ctx.fillStyle='rgba(10,10,40,.88)';ctx.fillRect(40,H-80-h/2,W-80,h);ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(40,H-80-h/2,W-80,h);ls.forEach((l,i)=>txt(l,W/2,H-80-h/2+7+i*14,9,'#fff','center'));ctx.globalAlpha=1;}
+}
+function drawScene(){
+ const th=TH[S.scene]||TH.court;sky(th);const sx=S.sx;th.deco(sx,F);
+ ctx.fillStyle=th.top;ctx.fillRect(0,340,W,8);ctx.fillStyle=th.fill;ctx.fillRect(0,348,W,H-348);
+ ctx.fillStyle=th.line;for(let i=0;i<14;i++)ctx.fillRect(((i*70-sx*2)%980+980)%980-60,360+(i%3)*24,40,3);
+ const im=(Math.floor(F/6)%2)?SP.p.run1:SP.p.run2;drawPlayer(im,120,340-84,1,3);
+}
+function drawBoss(){
+ const th=TH[WORLDS[S.w-1].theme];sky(th);th.deco(0,F);
+ ctx.fillStyle=th.top;ctx.fillRect(0,196,W,8);ctx.fillStyle=th.fill;ctx.fillRect(0,204,W,H-204);
+ const b=S.boss;if(!b)return;
+ const px=110+(b.shakeP>0?Math.random()*8-4:0);drawPlayer(SP.p.idle,px,196-84,1,3);
+ const bob=Math.sin(F/12)*4,bx=540+(b.shakeB>0?Math.random()*10-5:0);
+ if(b.hp>0||F%6<3){drawPlayer(SP.boss[S.w-1],bx,196-84*1.1+bob,1,1);
+  if(S.w===5){ctx.fillStyle='#ffd23f';const cy=196-84*1.1+bob-16;ctx.fillRect(bx+14,cy+8,56,10);for(let i=0;i<4;i++)ctx.fillRect(bx+14+i*18,cy,10,10);ctx.fillStyle='#e63946';ctx.fillRect(bx+40,cy+10,6,6);}}
+ if(b.anim){const a=b.anim,k=Math.min(1,a.t/30);let x,y;
+  if(a.k==='hit'){x=185+(bx-185)*k;y=130-Math.sin(Math.PI*k)*50;ctx.drawImage(SP.ball,x,y,24,24);}
+  else{x=bx+10-(bx-170)*k;y=140-Math.sin(Math.PI*k)*40;ctx.save();ctx.translate(x+12,y+12);ctx.rotate(F*.3);ctx.drawImage(SP.ball,-12,-12,24,24);ctx.restore();}}
+ const bw=220,bxp=W-bw-20;ctx.fillStyle='#000';ctx.fillRect(bxp-3,40,bw+6,18);ctx.fillStyle='#444';ctx.fillRect(bxp,43,bw,12);ctx.fillStyle='#e63946';ctx.fillRect(bxp,43,bw*Math.max(0,b.hp)/b.max,12);
+ txt(WORLDS[S.w-1].boss.toUpperCase(),bxp,62,8,'#fff');
+ hud();
+ if(S.toast){txt(S.toast.s,W/2,100,14,'#ffd23f','center');}
+}
+function updBoss(){const b=S.boss;if(!b)return;if(b.anim){b.anim.t++;if(b.anim.t===30){if(b.anim.k==='hit'){b.shakeB=20;SFX.stomp();}else b.shakeP=20;}if(b.anim.t>40)b.anim=null;}if(b.shakeB>0)b.shakeB--;if(b.shakeP>0)b.shakeP--;if(S.toast&&--S.toast.t<=0)S.toast=null;}
+function drawEnd(){drawScene();for(let i=0;i<40;i++){const x=(i*53+F*(1+i%3))%W,y=(i*97+F*(2+i%4))%H;ctx.fillStyle=CROWD[i%4];ctx.fillRect(x,y,5,5);}
+ ctx.drawImage(SP.ball,380,150+Math.sin(F/10)*6,40,40);}
+function render(){
+ ctx.clearRect(0,0,W,H);
+ if(S.mode==='play'||S.mode==='dead'){if(L)drawPlay();}
+ else if(S.mode==='boss')drawBoss();
+ else if(S.mode==='end')drawEnd();
+ else if(S.mode==='clear'){if(L)drawPlay();}
+ else drawScene();
+ touchEl.style.display=(isTouch&&S.mode==='play'&&!S.ov)?'block':'none';
+}
+/* ============================ LOOP ============================ */
+function step(){F++;
+ if(S.mode==='play'&&!S.ov)update();
+ else if(S.mode==='boss')updBoss();
+ else if(S.mode==='title'||S.mode==='end')S.sx+=.8;}
+let last=performance.now(),acc=0;
+function loop(now){const dt=Math.min(100,now-last);last=now;acc+=dt;let n=0;while(acc>=16.67&&n<4){step();acc-=16.67;n++;}if(n>=4)acc=0;render();requestAnimationFrame(loop);}
+showTitle();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
